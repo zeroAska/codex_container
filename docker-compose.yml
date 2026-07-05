@@ -1,0 +1,77 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  codex-arch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_NAME: ${USER_NAME:-developer}
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        HOME_DIR: ${HOME_DIR:-/home/developer}  # ✅ Fixed - removed nested variable
+    
+    container_name: codex-arch-container
+
+    user: ${USER_ID:-1000}:${GROUP_ID:-1000}
+    
+    # Enable GPU support
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
+      - NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:-compute,utility,graphics}
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/tmp/.XAuthority
+      - USER_NAME=${USER_NAME:-developer}  # ✅ Added to pass to container
+      - HOME_DIR=${HOME_DIR:-/home/developer}  # ✅ Added to pass to container
+    
+    # Network configuration
+    network_mode: bridge
+    ports:
+      - "2222:22"
+      - "8080:8080"
+      - "8000:8000"
+      - "3000:3000"
+      - "11435:11434"
+    
+    # Volume mounts
+    volumes:
+      # Mount specific folders - ✅ Fixed variable usage
+      - ${HOME_DIR:-/home/developer}/code/docker_home/codex:/home/${USER_NAME:-developer}
+      - /run/media/${USER_NAME:-developer}/Samsung_T5/docker:/home/${USER_NAME:-developer}/media/
+      
+      # Mount X11 for GUI apps
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-/tmp/.XAuthority}:/tmp/.XAuthority:rw
+      
+      # Mount Docker socket (optional)
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    # Resource limits
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # Shm size for PyTorch/TensorFlow
+    shm_size: '16gb'
+    
+    # Keep container running
+    stdin_open: true
+    tty: true
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "nvidia-smi"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

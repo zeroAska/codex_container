@@ -1,0 +1,1 @@
+docker run -it --rm   --gpus all   -v /home/$(whoami)/code/docker_home/codex:/home/$(whoami)   -v /run/media/$(whoami)/Samsung_T5/docker:/home/$(whoami)/media   -w /home/$(whoami)   --name codex-test --user $(id -u):$(id -g)    docker-codex-arch   bash
