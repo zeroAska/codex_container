@@ -73,6 +73,4 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTHORITY:-/tmp/.XAuthority}:/tmp/.XAuthority:rw
       
-      # Mount Docker socket (optional)
-      - /var/run/docker.sock:/var/run/docker.sock
     
