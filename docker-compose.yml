@@ -36,19 +36,6 @@ services:
       - "3000:3000"
       - "11435:11434"
     
-    # Volume mounts
-    volumes:
-      # Mount specific folders - ✅ Fixed variable usage
-      - ${HOME_DIR:-/home/developer}/code/docker_home/codex:/home/${USER_NAME:-developer}
-      - /run/media/${USER_NAME:-developer}/Samsung_T5/docker:/home/${USER_NAME:-developer}/media/
-      
-      # Mount X11 for GUI apps
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ${XAUTHORITY:-/tmp/.XAuthority}:/tmp/.XAuthority:rw
-      
-      # Mount Docker socket (optional)
-      - /var/run/docker.sock:/var/run/docker.sock
-    
     # Resource limits
     deploy:
       resources:
@@ -75,3 +62,17 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+    # Volume mounts
+    volumes:
+      # Mount specific folders - ✅ Fixed variable usage
+      - ${HOME_DIR:-/home/developer}/:/home/${USER_NAME:-developer}
+      - /run/media/${USER_NAME:-developer}/Seagate:/home/${USER_NAME:-developer}/media/
+      
+      # Mount X11 for GUI apps
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-/tmp/.XAuthority}:/tmp/.XAuthority:rw
+      
+      # Mount Docker socket (optional)
+      - /var/run/docker.sock:/var/run/docker.sock
+    
